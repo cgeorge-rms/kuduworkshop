@@ -9,3 +9,4 @@ You can do this by going to Run > Edit Configurations
 Expand the defaults
 select Junit and add -DbinDir=$MODULE_DIR$/kudubinary to the end of vmoptions
 
+you'll also need to run brew install openssl
