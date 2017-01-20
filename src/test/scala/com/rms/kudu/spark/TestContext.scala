@@ -17,6 +17,9 @@
 package com.rms.kudu.spark
 
 
+import java.io.File
+import java.net.URL
+
 import org.apache.kudu.spark.kudu._
 import java.util.Date
 
@@ -24,7 +27,7 @@ import com.google.common.collect.ImmutableList
 import org.apache.kudu.ColumnSchema.ColumnSchemaBuilder
 import org.apache.kudu.client.KuduClient.KuduClientBuilder
 import org.apache.kudu.client.MiniKuduCluster.MiniKuduClusterBuilder
-import org.apache.kudu.client.{CreateTableOptions, KuduClient, KuduTable, MiniKuduCluster}
+import org.apache.kudu.client._
 import org.apache.kudu.{Schema, Type}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.{BeforeAndAfterAll, Suite}
