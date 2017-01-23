@@ -10,3 +10,16 @@ Expand the defaults
 select Junit and add -DbinDir=$MODULE_DIR$/kudubinary to the end of vmoptions
 
 you'll also need to run brew install openssl
+
+Note that the default logback.xml is set to warning.. you may want to reduce the level to see more.
+I have also included lots of other parquet files to play around with joins and stuff in spark if you want to
+
+I would recommend the following path:
+SampleCreateAndRead.java 
+Then create your own example table and use it for futher testing.
+Then run InsertLoadgen to generate fake data
+
+Then switch to SparkExample and run through those and create some of your own.
+Then switch to ComplexParallelReadExample
+And then review the spark test classes and StartKudu
+
