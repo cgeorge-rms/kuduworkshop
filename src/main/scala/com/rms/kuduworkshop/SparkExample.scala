@@ -57,7 +57,7 @@ object SparkExample {
       //print the number of lines in parquet file
       println("Parquet file contains this many lines:"+addressDF.count)
       //creates a table matching the parquet file with a composite primary key Seq("structureId","id","addressSchemeId") and hash partitioned based on Id with 10 total partitions. For High Availability it has 2 replicas for each partition
-      kuduContext.createTable("address", addressDF.schema, Seq("structureId","id","addressSchemeId"),  new CreateTableOptions().addHashPartitions(List("id").asJava, 10).setNumReplicas(2))
+      kuduContext.createTable("address", addressDF.schema, Seq("structureId","id","addressSchemeId"),  new CreateTableOptions().addHashPartitions(List("id").asJava, 10).setNumReplicas(3))
 
       addressDF.write.options(options).mode("append").kudu
     }
