@@ -19,17 +19,19 @@ public class ComplexParallelReadExample {
 
     public static void main(String[] args) {
 
-        KuduClient client = new KuduClient.KuduClientBuilder("127.0.0.1:64046").build();
+        KuduClient client = new KuduClient.KuduClientBuilder("127.0.0.1:64046")
+//        KuduClient client = new KuduClient.KuduClientBuilder("10.92.2.43")
+                .defaultAdminOperationTimeoutMs(10000L)
+                .defaultOperationTimeoutMs(10000L)
+                .defaultSocketReadTimeoutMs(3000L).build();
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
 
         try {
             //This will get information about the hashes and the table partitions
             KuduTable kuduAddressTable = client.openTable("address");
+//            KuduTable kuduAddressTable = client.openTable("1.Address");
             // The number of tokens created is the number of partitions that will be read
-            List<KuduScanToken> tokens = client.newScanTokenBuilder(kuduAddressTable)
-                    .addPredicate(KuduPredicate.newComparisonPredicate(kuduAddressTable.getSchema().getColumn("countryCode"), KuduPredicate.ComparisonOp.EQUAL, "GB"))
-                    .build();
-//                    .setProjectedColumnNames() I can set my projections with this but I'll leave it blank to get the entire rows
+            List<KuduScanToken> tokens = client.newScanTokenBuilder(kuduAddressTable).build();
 
             //blocking queue to "merge" the results...
             final BlockingQueue<String> queue = new LinkedBlockingDeque<>(1000);
@@ -48,6 +50,7 @@ public class ComplexParallelReadExample {
                                 while(rowResults.hasNext()) {
                                     RowResult next = rowResults.next(); // fyi this does an in memory lookup for a backing memory array so you need to deep copy the data
                                     try {
+                                        Thread.sleep(100);
                                         queue.put(next.rowToString());//I'm being lazy here as you would want to put into actual structure of some type
                                     } catch (InterruptedException e) {}
                                 }
@@ -61,17 +64,24 @@ public class ComplexParallelReadExample {
 
             }
 
+            System.out.println("done adding token scanners");
             int count = 0;
             while (true) {
                 try {
                     String item = queue.poll(1, TimeUnit.SECONDS);
                     if (item==null) {
+                        boolean isNotDone = false;
                         for (Future future : futures) {
                             if (!future.isDone()) {
-                                return; // we are not done yet as there are still futures left
+                                isNotDone=true;
+                                continue; // we are not done yet as there are still futures left
                             }
                         }
-                        break;
+                        if (isNotDone) {
+                            continue;
+                        } else {
+                            break;
+                        }
                     }
                     count++;
                 } catch (InterruptedException e) {}
